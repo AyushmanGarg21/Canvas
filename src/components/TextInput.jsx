@@ -2,12 +2,28 @@ import {useState} from 'react';
 /* eslint-disable react/prop-types */
 import { Input } from '@mui/base/Input';
 
-const TextInput = ({ label , setInputText }) => {
+const TextInput = ({ label ,templateData, setTempData }) => {
   const [text, setText] = useState('');
 
   const handleTextChange = (e) => {
     setText(e.target.value);
-    setInputText(e.target.value);
+    if(label === "Caption"){
+      setTempData({
+        ...templateData,
+        caption: {
+          ...templateData.caption,
+          text: e.target.value,
+        },
+      });
+    }else{
+      setTempData({
+        ...templateData,
+        cta: {
+          ...templateData.cta,
+          text: e.target.value,
+        },
+      });
+    }
   };
 
   return (

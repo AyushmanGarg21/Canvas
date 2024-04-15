@@ -7,19 +7,63 @@ const Canvas = ({ templateData, backgroundColor , selectedImage }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    renderCaption(ctx, templateData.caption);
-    renderCTA(ctx, templateData.cta);
-    renderSelectedImage(ctx, selectedImage, templateData.image_mask);
+    const fetchData = async () => {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      await renderImage(ctx, templateData.urls.design_pattern);
+      await renderImage(ctx, templateData.urls.mask);
+      await renderImage(ctx, templateData.urls.stroke);
+      await renderSelectedImage(ctx, selectedImage, templateData.image_mask);
+      renderCaption(ctx, templateData.caption);
+      renderCTA(ctx, templateData.cta);
+    };
 
-  }, [backgroundColor,templateData,selectedImage]);
+    fetchData();
+  }, [backgroundColor, templateData, selectedImage]);
 
+  const renderImage = async (ctx, imageUrl) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = imageUrl;
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);
+        resolve();
+      };
+      img.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
 
+  const renderSelectedImage = async (ctx, image, maskData) => {
+    return new Promise((resolve, reject) => {
+      if (!image) {
+        resolve();
+        return;
+      }
+      const { x, y, width, height } = maskData;
+      const img = new Image();
+      img.src = image;
+      img.onload = () => {
+        ctx.save();
+        ctx.globalCompositeOperation='source-over';
+        ctx.beginPath();
+        ctx.rect(x, y, width, height);
+        ctx.clip();
+        ctx.drawImage(img, x, y, width, height);
+        ctx.restore();
+        resolve();
+      };
+      img.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
+  
 
   const renderCaption = (ctx, captionData) => {
     const { text, position, font_size, alignment, text_color, max_characters_per_line } = captionData;
@@ -70,6 +114,7 @@ const Canvas = ({ templateData, backgroundColor , selectedImage }) => {
     ctx.fillText(text, position.x, position.y);
   };
 
+
   const wrapText = (text, maxCharactersPerLine) => {
     const words = text.split(' ');
     let line = '';
@@ -86,24 +131,6 @@ const Canvas = ({ templateData, backgroundColor , selectedImage }) => {
     lines.push(line);
     return lines;
   };
-
-  const renderSelectedImage = (ctx, image, maskData) => {
-    if (!image) return;
-    const { x, y, width, height } = maskData;
-    const img = new Image();
-    img.src = image;
-    img.onload = () => {
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(x, y, width, height);
-      ctx.clip();
-      ctx.drawImage(img, x, y, width, height);
-      ctx.restore();
-    };
-  };
-
-
-
 
   
 

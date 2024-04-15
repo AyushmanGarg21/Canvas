@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 import Canvas from './components/Canvas'
 import ColorPicker from './components/ColorPicker';
@@ -35,8 +35,6 @@ const App = () => {
   const [templateData , setTempData] = useState(SampleTemplateData);
   const [backgroundColor, setBackgroundColor] = useState('#0369A1');
   const [selectedImage, setSelectedImage] = useState(null);
-  const [caption, setCaption] = useState('');
-  const [cta, setCta] = useState('');
 
   const handleImageChange = (imageDataUrl) => {
     setSelectedImage(imageDataUrl);
@@ -45,21 +43,6 @@ const App = () => {
   const handleColorChange = (color) => {
     setBackgroundColor(color);
   };
-
-  useEffect(() => {
-    setTempData({
-      ...templateData,
-      caption: {
-        ...templateData.caption,
-        text: caption,
-      },
-      cta: {
-        ...templateData.cta,
-        text: cta,
-      },
-    });
-  }
-  , [caption, cta]);
 
   return (
     <div className="flex flex-row flex-wrap wide gap-5">
@@ -79,8 +62,8 @@ const App = () => {
       </div>
       <div className='line'></div>
       <div className='flex flex-col gap-2'>
-          <TextInput label="Caption" setInputText={setCaption}/>
-          <TextInput label="CTA" setInputText={setCta}/>
+          <TextInput label="Caption" templateData={templateData}  setTempData={setTempData}/>
+          <TextInput label="CTA" templateData={templateData} setTempData={setTempData}/>
           <ColorPicker onChange={handleColorChange} />
       </div>
     </div> 
