@@ -13,4 +13,20 @@ body {
   text-align: center;
 }
 
+.wide {
+  height: 100dvh;
+}
+
+.back-pattren{
+  background: repeating-linear-gradient(
+  -45deg,
+  whitesmoke,
+  whitesmoke 10px,
+  #ffffff 12px,
+  #ffffff 15px
+);
+}
+
+
+
 

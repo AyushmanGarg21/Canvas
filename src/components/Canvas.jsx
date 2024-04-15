@@ -1,98 +1,111 @@
-// src/components/Canvas.js
 /* eslint-disable react/prop-types */
+
 import { useEffect, useRef } from 'react';
 
-const Canvas = ({ templateData }) => {
+const Canvas = ({ templateData, backgroundColor , selectedImage }) => {
+
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-
-    // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw background color
-    ctx.fillStyle = '#0369A1'; // Default blue background color
+    ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    renderCaption(ctx, templateData.caption);
+    renderCTA(ctx, templateData.cta);
+    renderSelectedImage(ctx, selectedImage, templateData.image_mask);
 
-    // Draw design pattern
-    const designPatternImg = new Image();
-    designPatternImg.src = templateData.urls.design_pattern;
-    designPatternImg.onload = () => {
-      ctx.drawImage(designPatternImg, 0, 0, canvas.width, canvas.height);
-    };
+  }, [backgroundColor,templateData,selectedImage]);
 
-    // Draw mask
-    const maskImg = new Image();
-    maskImg.src = templateData.urls.mask;
-    maskImg.onload = () => {
-      ctx.globalCompositeOperation = 'source-in';
-      ctx.drawImage(maskImg, templateData.image_mask.x, templateData.image_mask.y, templateData.image_mask.width, templateData.image_mask.height);
-    };
 
-    // Draw mask stroke
-    const strokeImg = new Image();
-    strokeImg.src = templateData.urls.stroke;
-    strokeImg.onload = () => {
-      ctx.globalCompositeOperation = 'destination-over';
-      ctx.drawImage(strokeImg, templateData.image_mask.x, templateData.image_mask.y, templateData.image_mask.width, templateData.image_mask.height);
-    };
 
-    // Draw caption text
-    ctx.globalCompositeOperation = 'source-over'; // Reset global composite operation
-    ctx.fillStyle = templateData.caption.text_color;
-    ctx.font = `${templateData.caption.font_size}px Arial`;
-    wrapText(ctx, templateData.caption.text, templateData.caption.position.x, templateData.caption.position.y, 500, templateData.caption.max_characters_per_line);
+  const renderCaption = (ctx, captionData) => {
+    const { text, position, font_size, alignment, text_color, max_characters_per_line } = captionData;
+    
+    ctx.fillStyle = text_color;
+    ctx.font = `${font_size}px Arial`;
+    ctx.textAlign = alignment;
+
+    const lines = wrapText(text, max_characters_per_line);
+    
+    lines.forEach((line, index) => {
+      ctx.fillText(line, position.x, position.y + index *(font_size+15) );
+    });
+  };
+
+  const renderCTA = (ctx, ctaData) => {
+    const { text, position, font_size = 30, text_color, background_color, wrap_length = 20 } = ctaData;
+    
+    // Calculate text width and height
+    ctx.font = `${font_size}px Arial`;
+    const textWidth = ctx.measureText(text).width;
+    const textHeight = font_size;
+
+    // Draw rounded rectangle background for CTA
+    ctx.fillStyle = background_color;
+    ctx.strokeStyle = text_color;
+    const padding = 24;
+    const rectWidth = textWidth + 2 * padding;
+    const rectHeight = textHeight + 2 * padding;
+    const rectX = position.x - rectWidth / 2;
+    const rectY = position.y - rectHeight / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(rectX+10, rectY);
+    ctx.arcTo(rectX + rectWidth, rectY, rectX + rectWidth, rectY + rectHeight, 20);
+    ctx.arcTo(rectX + rectWidth, rectY + rectHeight, rectX, rectY + rectHeight, 20);
+    ctx.arcTo(rectX, rectY + rectHeight, rectX, rectY, 20);
+    ctx.arcTo(rectX, rectY, rectX + rectWidth, rectY, 20);
+    ctx.closePath();
+
+    ctx.fill();
 
     // Draw CTA text
-    const ctaX = templateData.cta.position.x;
-    const ctaY = templateData.cta.position.y;
-    const ctaWidth = ctx.measureText(templateData.cta.text).width + 48;
-    const ctaHeight = templateData.cta.font_size + 48;
-    const ctaXStart = ctaX - ctaWidth / 2;
-    const ctaYStart = ctaY - ctaHeight / 2;
-
-    ctx.fillStyle = templateData.cta.background_color;
-    roundRect(ctx, ctaXStart, ctaYStart, ctaWidth, ctaHeight, 10, true);
-    ctx.fillStyle = templateData.cta.text_color;
-    ctx.font = `${templateData.cta.font_size}px Arial`;
+    ctx.fillStyle = text_color;
+    ctx.font = `${font_size}px Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(templateData.cta.text, ctaX, ctaY);
-  }, [templateData]);
+    ctx.fillText(text, position.x, position.y);
+  };
 
-  const wrapText = (ctx, text, x, y, maxWidth, maxCharsPerLine) => {
-    let words = text.split(' ');
+  const wrapText = (text, maxCharactersPerLine) => {
+    const words = text.split(' ');
     let line = '';
-    let yPos = y;
+    const lines = [];
     for (let word of words) {
-      let testLine = line + word + ' ';
-      let metrics = ctx.measureText(testLine);
-      let testWidth = metrics.width;
-      if (testWidth > maxWidth || word === '\n') {
-        ctx.fillText(line.trim(), x, yPos);
+      const testLine = line + word + ' ';
+      if (testLine.length > maxCharactersPerLine) {
+        lines.push(line);
         line = word + ' ';
-        yPos += templateData.caption.font_size;
       } else {
         line = testLine;
       }
     }
-    ctx.fillText(line.trim(), x, yPos);
+    lines.push(line);
+    return lines;
   };
 
-  const roundRect = (ctx, x, y, width, height, radius, fill) => {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.arcTo(x + width, y, x + width, y + height, radius);
-    ctx.arcTo(x + width, y + height, x, y + height, radius);
-    ctx.arcTo(x, y + height, x, y, radius);
-    ctx.arcTo(x, y, x + width, y, radius);
-    ctx.closePath();
-    if (fill) {
-      ctx.fill();
-    }
+  const renderSelectedImage = (ctx, image, maskData) => {
+    if (!image) return;
+    const { x, y, width, height } = maskData;
+    const img = new Image();
+    img.src = image;
+    img.onload = () => {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, width, height);
+      ctx.clip();
+      ctx.drawImage(img, x, y, width, height);
+      ctx.restore();
+    };
   };
+
+
+
+
+  
 
   return (
     <canvas

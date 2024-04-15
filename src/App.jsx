@@ -1,15 +1,20 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import Canvas from './components/Canvas'
 import ColorPicker from './components/ColorPicker';
 import TextInput from './components/TextInput';
+import ImagePicker from './components/ImagePicker';
+import maskImage from  './assets/global_temp_landscape_temp_10_mask.png';
+import strokeImage from  './assets/global_temp_landscape_temp_10_Mask_stroke.png';
+import designPatternImage from  './assets/global_temp_landscape_temp_10_Design_Pattern.png';
 
 const App = () => {
-  const templateData = {
+  const SampleTemplateData = {
     caption: {
       text: '1 & 2 BHK Luxury Apartments at just Rs.34.97 Lakhs',
-      position: { x: 50, y: 50 },
+      position: { x: 100, y: 100 },
       font_size: 44,
+      alignment:"left",
       text_color: '#FFFFFF',
       max_characters_per_line: 31,
     },
@@ -21,37 +26,61 @@ const App = () => {
     },
     image_mask: { x: 56, y: 442, width: 970, height: 600 },
     urls: {
-      mask: 'https://d273i1jagfl543.cloudfront.net/templates/global_temp_landscape_temp_10_mask.png',
-      stroke: 'https://d273i1jagfl543.cloudfront.net/templates/global_temp_landscape_temp_10_Mask_stroke.png',
-      design_pattern: 'https://d273i1jagfl543.cloudfront.net/templates/global_temp_landscape_temp_10_Design_Pattern.png',
+      mask: maskImage,
+      stroke: strokeImage,
+      design_pattern: designPatternImage,
     },
   };
 
+  const [templateData , setTempData] = useState(SampleTemplateData);
   const [backgroundColor, setBackgroundColor] = useState('#0369A1');
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [caption, setCaption] = useState('');
+  const [cta, setCta] = useState('');
 
-  const handleColorChange = (color) => {
-    setBackgroundColor(color.hex);
+  const handleImageChange = (imageDataUrl) => {
+    setSelectedImage(imageDataUrl);
   };
 
+  const handleColorChange = (color) => {
+    setBackgroundColor(color);
+  };
+
+  useEffect(() => {
+    setTempData({
+      ...templateData,
+      caption: {
+        ...templateData.caption,
+        text: caption,
+      },
+      cta: {
+        ...templateData.cta,
+        text: cta,
+      },
+    });
+  }
+  , [caption, cta]);
+
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-row flex-wrap wide gap-5">
+    <div className="flex flex-1 w-64 items-center justify-center back-pattren">
     <div>
-      <Canvas templateData={templateData} backgroundColor={backgroundColor} />
+        <Canvas templateData={templateData} backgroundColor={backgroundColor} selectedImage = {selectedImage} />
     </div>
-    <div>
-      <div className='flex flex-col item-center'>
+    </div>
+
+    <div className="flex flex-1 flex-col w-64 justify-start gap-4">
+      <div className='flex flex-col justify-start gap-2'>
         <h1 className="text-4xl font-bold text-center">Ad Customization</h1>
         <p className="text-center">Customize your image</p>
       </div>
       <div className='flex flex-col'>
-          {/*image select */}
+          <ImagePicker onImageChange={handleImageChange} />
       </div>
-      <div className='line'>
-        Edit contents
-      </div>
-      <div className='flex flex-col'>
-          <TextInput label="Caption" />
-          <TextInput label="CTA" />
+      <div className='line'></div>
+      <div className='flex flex-col gap-2'>
+          <TextInput label="Caption" setInputText={setCaption}/>
+          <TextInput label="CTA" setInputText={setCta}/>
           <ColorPicker onChange={handleColorChange} />
       </div>
     </div> 

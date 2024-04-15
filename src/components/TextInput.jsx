@@ -1,12 +1,13 @@
-import React from 'react';
+import {useState} from 'react';
 /* eslint-disable react/prop-types */
 import { Input } from '@mui/base/Input';
 
-const TextInput = ({ label }) => {
-  const [text, setText] = React.useState('');
+const TextInput = ({ label , setInputText }) => {
+  const [text, setText] = useState('');
 
   const handleTextChange = (e) => {
     setText(e.target.value);
+    setInputText(e.target.value);
   };
 
   return (
