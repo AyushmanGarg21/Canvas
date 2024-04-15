@@ -23,7 +23,14 @@ const Canvas = ({ templateData, backgroundColor , selectedImage }) => {
     };
 
     fetchData();
-  }, [backgroundColor, templateData, selectedImage]);
+  }, [backgroundColor, selectedImage,templateData]);
+
+  // useEffect(() => {
+  //     const canvas = canvasRef.current;
+  //     const ctx = canvas.getContext('2d');
+  //     renderCaption(ctx, templateData.caption);
+  //     renderCTA(ctx, templateData.cta);
+  // }, [backgroundColor, templateData, selectedImage]);
 
   const renderImage = async (ctx, imageUrl) => {
     return new Promise((resolve, reject) => {
@@ -139,7 +146,10 @@ const Canvas = ({ templateData, backgroundColor , selectedImage }) => {
       ref={canvasRef}
       width={1080}
       height={1080}
-      style={{ width: '400px', height: '400px', border: '1px solid black' }}
+      style={{ width: '100%',height: '100%',
+      maxWidth:'400px',maxHeight:'400px',
+      minHeight:'250px',minWidth:'250px',
+      border: '1px solid black' }}
     />
   );
 };

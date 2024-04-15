@@ -39,32 +39,32 @@ const App = () => {
   const handleImageChange = (imageDataUrl) => {
     setSelectedImage(imageDataUrl);
   };
-
-  const handleColorChange = (color) => {
-    setBackgroundColor(color);
-  };
-
+  
   return (
-    <div className="flex flex-row flex-wrap wide gap-5">
+    <div className="flex flex-row flex-wrap wide gap-10">
     <div className="flex flex-1 w-64 items-center justify-center back-pattren">
     <div>
         <Canvas templateData={templateData} backgroundColor={backgroundColor} selectedImage = {selectedImage} />
     </div>
     </div>
 
-    <div className="flex flex-1 flex-col w-64 justify-start gap-4">
-      <div className='flex flex-col justify-start gap-2'>
+    <div className="flex flex-1 flex-col w-64 justify-start gap-5">
+      <div className='flex flex-col justify-start gap-2 mt-10'>
         <h1 className="text-4xl font-bold text-center">Ad Customization</h1>
-        <p className="text-center">Customize your image</p>
+        <p className="text-center text-slate-400">Customize your ad and get the templates accordingly</p>
       </div>
       <div className='flex flex-col'>
           <ImagePicker onImageChange={handleImageChange} />
       </div>
-      <div className='line'></div>
-      <div className='flex flex-col gap-2'>
+      <div className="flex flex row items-center">
+        <div className='line'></div>
+        <span className="text-gray-500 w-56">Edit Contents</span>
+        <div className='line'></div>
+      </div>
+      <div className='flex flex-col gap-1'>
           <TextInput label="Caption" templateData={templateData}  setTempData={setTempData}/>
           <TextInput label="CTA" templateData={templateData} setTempData={setTempData}/>
-          <ColorPicker onChange={handleColorChange} />
+          <ColorPicker backgroundColor = {backgroundColor} setBackgroundColor={setBackgroundColor}/>
       </div>
     </div> 
     </div>

@@ -47,7 +47,7 @@ const ImagePicker = ({ onImageChange }) => {
         >
             
           <AddPhotoAlternateIcon/>
-          select image
+          <p className='text-slate-400'>Change and add iamge</p>
         </Box>
       </div>
     </div>

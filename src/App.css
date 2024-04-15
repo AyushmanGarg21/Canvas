@@ -2,8 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  scrollbar-width: none;
+}
+
 body {
   background-color: white;
+  font-family: 'Poppins', sans-serif;
+  scrollbar-width: none;
 }
 
 .line{
